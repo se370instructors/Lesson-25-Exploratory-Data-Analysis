@@ -1,0 +1,152 @@
+---
+"AY22-2 SE370: Lesson 22 - Data Visualization"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+```
+
+## Exploratory Data Analysis
+
+What is EDA?
+
+-   *The process of transforming and visualizing data in order to better understand the data set, understand the relationships between variables, and to help generate hypotheses to investigate further*
+
+## Let's do some EDA...
+
+```{r }
+df <- read.csv("merged_data_16-17.csv")
+
+head(df)
+```
+
+#### Answer these questions about your data:
+
+1.  What does each row represent?
+
+    ANS: A different college or university
+
+2.  How many rows do you have?
+
+    ANS: 7,175 rows -- which means 7,175 colleges/universities are listed
+
+3.  Are there missing values in your data? How are they coded?
+
+    ANS: Yes. Coded as `NULL` , `PrivacySuppressed`
+
+#### Clean your data:
+
+1.  Replace all missing values with `NA`. *Hint*: Take all things called "blank" and replace them with `NA`
+
+    ```{r}
+    df[df == "NULL"] <- NA
+    df[df == "PrivacySuppressed"] <- NA
+    ```
+
+2.  Convert columns that should be numeric...to numeric. *Hint: use the mutate_at() function to mutate a bunch of columns at one time.*
+
+    ```{r}
+    #str(df)
+
+    cols <- c(6:25)
+
+    df[cols] <- sapply(df[cols], as.numeric)
+
+    ```
+
+3.  Recode the `HIGHDEG` column so that '4' = 'bachelors', '3' = 'associates', '2' and '1' = 'vocational', '0' = 'non-degree'. *Hints: use mutate and recode together; `HIGHDEG` must start as a character for recode to work.*
+
+    ```{r}
+
+    df <- df %>%
+      mutate(HIGHDEG = as.character(HIGHDEG)) %>%
+      mutate(HIGHDEG = recode(HIGHDEG, "4" = "bachelors", "3" = "associates", "2" = "vocational", "1" = "vocational", "0" = "non-degree"))
+
+    ```
+
+#### Answer the following questions:
+
+1.  What are the top 5 schools with the highest in-state tuition?
+
+    ```{r}
+    top <- df %>%
+      arrange(-TUITIONFEE_IN) %>%
+      top_n(5, TUITIONFEE_IN)
+
+    top %>% select(INSTNM, TUITIONFEE_IN)
+    ```
+
+2.  What are the top 5 schools with the lowest in-state tuition?
+
+    ```{r}
+    bottom <- df %>%
+      arrange(TUITIONFEE_IN) %>%
+      top_n(-5, TUITIONFEE_IN)
+
+    bottom %>% select(INSTNM, TUITIONFEE_IN)
+    ```
+
+3.  Count and plot the types of accreditation?
+
+    ```{r}
+    acc <- df %>%
+      group_by(ACCREDAGENCY) %>%
+      summarise(count = n()) %>%
+      arrange(count)
+
+    ggplot(data = acc, aes(x = ACCREDAGENCY, y = count)) + geom_bar(stat = "identity")
+    ```
+
+4.  Is there a relationship between `SAT_AVG` and Admissions Rate? Answer with a plot.
+
+    ```{r}
+
+    ggplot(data = df, aes(x = SAT_AVG_ALL, y = ADM_RATE_ALL)) + geom_point()
+    ```
+
+#### Extra questions (you don't need to answer these...only for fun!)
+
+1.  Is there a relationship between faculty salary and tuition?
+
+    ```{r}
+    # remove extreme values...
+    df_tuit <- df %>%
+      filter(TUITFTE <= 200000)
+
+    ggplot(data = df_tuit, aes(x = AVGFACSAL, y = TUITFTE)) + geom_point()
+
+    ```
+
+    *It's hard to say, but doesn't appear that there is a relationship -- it might be beneficial to try a different visualization for this.*
+
+2.  Create facet plots showing the distributions (densities) of SAT scores by degree type?
+
+    ```{r}
+
+    ggplot(data = df, aes(x = SAT_AVG_ALL)) + geom_density() + facet_wrap(~HIGHDEG)
+
+    ```
+
+3.  Are entry ages the same for all degree types? Show with a boxplot.
+
+    ```{r}
+    ggplot(data = df, aes(x = HIGHDEG, y = AGE_ENTRY)) + geom_boxplot()
+    ```
+
+4.  Create a stacked barplot showing the share of men and women for the 10 most expensive out of state tuition.
+
+    ```{r}
+    m_f <- df %>%
+      mutate(MALE = 1 - FEMALE) %>%
+      select(INSTNM,TUITIONFEE_OUT, FEMALE, MALE) %>%
+      drop_na(FEMALE) %>% #remove entries that don't show this split
+      top_n(10, TUITIONFEE_OUT) %>%
+      pivot_longer(cols = c("FEMALE", "MALE"), names_to = "GENDER", values_to = "PROPORTION")
+    ```
+
+```{r}
+ggplot(data = m_f, aes(x = INSTNM, y = PROPORTION, fill = GENDER)) + geom_bar(stat = "identity") + theme(axis.text.x = element_text(angle = 45))
+```

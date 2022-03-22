@@ -1,0 +1,108 @@
+---
+title: '"AY22-2 SE370: Lesson 24 Exploratory Data Analysis'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+```
+
+## Exploratory Data Analysis
+
+What is EDA?
+
+-   *Type your definition here...*
+
+## Let's do some EDA...
+
+```{r }
+
+```
+
+#### Answer these questions about your data:
+
+1.  What does each row represent?
+
+    ANS:
+
+2.  How many rows do you have?
+
+    ANS:
+
+3.  Are there missing values in your data? How are they coded?
+
+    ANS:
+
+#### Clean your data:
+
+1.  Replace all missing values with `NA`. *Hint*: Take all things called "blank" and replace them with `NA`
+
+    ```{r}
+
+    ```
+
+2.  Convert columns that should be numeric...to numeric. *Hint: use the mutate_at() function to mutate a bunch of columns at one time.*
+
+    ```{r}
+
+    ```
+
+3.  Recode the `HIGHDEG` column so that '4' = 'bachelors', '3' = 'associates', '2' and '1' = 'vocational', '0' = 'non-degree'. *Hints: use mutate and recode together; `HIGHDEG` must start as a character for recode to work.*
+
+    ```{r}
+
+    ```
+
+#### Answer the following questions:
+
+1.  What are the top 5 schools with the highest in-state tuition?
+
+    ```{r}
+
+    ```
+
+2.  What are the top 5 schools with the lowest in-state tuition?
+
+    ```{r}
+
+    ```
+
+3.  Count and plot the types of accreditation?
+
+    ```{r}
+
+    ```
+
+4.  Is there a relationship between `SAT_AVG` and Admissions Rate? Answer with a plot.
+
+    ```{r}
+
+    ```
+
+#### Extra questions (you don't need to answer these...only for fun!)
+
+1.  Is there a relationship between faculty salary and tuition?
+
+    ```{r}
+
+    ```
+
+2.  Create facet plots showing the distributions (densities) of SAT scores by degree type?
+
+    ```{r}
+
+    ```
+
+3.  Are entry ages the same for all degree types? Show with a boxplot.
+
+    ```{r}
+
+    ```
+
+4.  Create a stacked barplot showing the share of men and women for the 10 most expensive out of state tuition.
+
+    ```{r}
+
+    ```
